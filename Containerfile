@@ -10,12 +10,17 @@ RUN pacman -Sy --noconfirm \
       e2fsprogs \
       xfsprogs \
       dosfstools \
+      fuse-overlayfs \
       skopeo \
       dbus \
       dbus-glib \
       glib2 \
-      ostree \
-      shadow && \
+      shadow \
+      iwd \
+      nano \
+      podman \
+      just \
+      && \
   pacman -S --clean --noconfirm && \
   rm -rf /var/cache/pacman/pkg/*
 
