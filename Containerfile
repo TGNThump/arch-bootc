@@ -20,6 +20,7 @@ RUN pacman -Sy --noconfirm \
       nano \
       podman \
       just \
+      git \
       && \
   pacman -S --clean --noconfirm && \
   rm -rf /var/cache/pacman/pkg/*
