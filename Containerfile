@@ -21,6 +21,7 @@ RUN pacman -Sy --noconfirm \
       podman \
       just \
       git \
+      networkmanager \
       && \
   pacman -S --clean --noconfirm && \
   rm -rf /var/cache/pacman/pkg/*
