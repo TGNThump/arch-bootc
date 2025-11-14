@@ -84,6 +84,25 @@ jobs:
           sep-tags: " "
           sep-annotations: " "
 
+      - name: Cache buildah storage
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.local/share/containers-cache.tar.zst
+          key: ${{ runner.os }}-buildah-${{ hashFiles('Containerfile') }}
+          restore-keys: |
+            ${{ runner.os }}-buildah-
+
+      - name: Restore buildah storage from cache
+        if: hashFiles('~/.local/share/containers-cache.tar.zst') != ''
+        run: |
+          if [ -f ~/.local/share/containers-cache.tar.zst ]; then
+            echo "Restoring buildah storage from cache..."
+            mkdir -p ~/.local/share/containers
+            tar -xf ~/.local/share/containers-cache.tar.zst -C ~/.local/share/
+            echo "Cache restored successfully"
+          fi
+
       - name: Build Image
         id: build_image
         uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
@@ -94,6 +113,16 @@ jobs:
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           oci: true
+
+      - name: Archive buildah storage for cache
+        if: always()
+        run: |
+          if [ -d ~/.local/share/containers ]; then
+            echo "Archiving buildah storage..."
+            tar -cf ~/.local/share/containers-cache.tar.zst -C ~/.local/share/ containers --use-compress-program=zstd
+            echo "Archive created successfully"
+            ls -lh ~/.local/share/containers-cache.tar.zst
+          fi
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
