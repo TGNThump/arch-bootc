@@ -16,7 +16,6 @@ RUN pacman -Sy --noconfirm \
       dbus-glib \
       glib2 \
       shadow \
-      iwd \
       nano \
       podman \
       just \
@@ -46,7 +45,6 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     ln -s var/opt /opt && \
     ln -s var/roothome /root && \
     ln -s var/home /home && \
-    ln -s sysroot/ostree /ostree && \
     echo "$(for dir in opt usrlocal home srv mnt ; do echo "d /var/$dir 0755 root root -" ; done)" | tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     echo "d /var/roothome 0700 root root -" | tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     echo "d /run/media 0755 root root -" | tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
