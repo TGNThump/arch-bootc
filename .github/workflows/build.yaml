@@ -88,7 +88,9 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
-            ~/.local/share/containers
+            ~/.local/share/containers/cache
+            ~/.local/share/containers/storage/overlay-images
+            ~/.local/share/containers/storage/overlay-layers
           key: ${{ runner.os }}-buildah-${{ hashFiles('Containerfile') }}
           restore-keys: |
             ${{ runner.os }}-buildah-
