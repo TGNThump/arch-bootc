@@ -84,6 +84,15 @@ jobs:
           sep-tags: " "
           sep-annotations: " "
 
+      - name: Cache container layers
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
+        with:
+          path: |
+            ~/.local/share/containers
+          key: ${{ runner.os }}-buildah-${{ hashFiles('Containerfile') }}
+          restore-keys: |
+            ${{ runner.os }}-buildah-
+
       - name: Build Image
         id: build_image
         uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
