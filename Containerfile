@@ -30,7 +30,7 @@ RUN mkdir -p /etc/dracut.conf.d && \
     printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /etc/dracut.conf.d/fix-bootc.conf
 
 RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
-    pacman -S --noconfirm base-devel git rust && \
+    pacman -S --noconfirm base-devel rust && \
     git clone "https://github.com/tgnthump/bootc.git" -b fix/cp-remove-destination /tmp/bootc && \
     make -C /tmp/bootc bin install-all install-initramfs-dracut && \
     sh -c 'export KERNEL_VERSION="$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)")" && \
