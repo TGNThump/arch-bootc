@@ -38,6 +38,12 @@ RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
     pacman -Rns --noconfirm base-devel rust && \
     pacman -S --clean --noconfirm
 
+RUN pacman -Sy --noconfirm \
+      git \
+      && \
+  pacman -S --clean --noconfirm && \
+  rm -rf /var/cache/pacman/pkg/*
+
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     rm -rf /boot /home /root /usr/local /srv && \
