@@ -46,8 +46,8 @@ RUN pacman -Sy --noconfirm \
 
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
-    rm -rf /boot /home /root /usr/local /srv && \
-    mkdir -p /var /sysroot /boot/efi /usr/lib/ostree && \
+    rm -rf /boot /home /root /usr/local /srv /efi && \
+    mkdir -p /var /sysroot /boot/efi /usr/lib/ostree /efi && \
     ln -s var/opt /opt && \
     ln -s var/roothome /root && \
     ln -s var/home /home && \
