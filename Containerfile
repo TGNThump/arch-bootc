@@ -38,10 +38,8 @@ RUN --mount=type=cache,target=/var/cache/pacman/pkg \
     linux-firmware
 
 # Regression with newer dracut broke this
-RUN install -d /etc/dracut.conf.d && cat > /etc/dracut.conf.d/fix-bootc.conf <<EOF
-systemdsystemconfdir=/etc/systemd/system
-systemdsystemunitdir=/usr/lib/systemd/system
-EOF
+RUN mkdir -p /etc/dracut.conf.d && \
+    printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /etc/dracut.conf.d/fix-bootc.conf
 
 
 # Recreate initramfs with dracut to ensure proper integration
