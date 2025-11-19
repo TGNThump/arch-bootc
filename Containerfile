@@ -1,47 +1,80 @@
-FROM docker.io/archlinux/archlinux:latest
+FROM docker.io/archlinux/archlinux:latest AS base
 
-RUN pacman -Sy --noconfirm \
-      base \
-      dracut \
-      linux \
-      linux-firmware \
-      ostree \
-      btrfs-progs \
-      e2fsprogs \
-      xfsprogs \
-      dosfstools \
-      fuse-overlayfs \
-      skopeo \
-      dbus \
-      dbus-glib \
-      glib2 \
-      shadow \
-      nano \
-      podman \
-      just \
-      git \
-      networkmanager \
-      && \
-  pacman -S --clean --noconfirm && \
-  rm -rf /var/cache/pacman/pkg/*
+RUN --mount=type=cache,target=/var/cache/pacman/pkg \
+    --mount=type=cache,target=/var/lib/pacman/sync \
+    pacman -Syu --noconfirm --needed archlinux-keyring
+
+#bootc runtime + build deps
+RUN --mount=type=cache,target=/var/cache/pacman/pkg \
+    --mount=type=cache,target=/var/lib/pacman/sync \
+    pacman -Sy --noconfirm --needed \
+    ostree \
+    dracut
+
+FROM base AS bootc-build
+
+# bootc build deps
+RUN --mount=type=cache,target=/var/cache/pacman/pkg \
+    --mount=type=cache,target=/var/lib/pacman/sync \
+    pacman -Sy --noconfirm --needed base-devel git rust
+
+RUN git clone --depth 1 "https://github.com/tgnthump/bootc.git" /tmp/bootc
+
+ENV DESTDIR=/sysroot
+RUN mkdir -p /sysroot
+
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    make -C /tmp/bootc bin install-all install-initramfs-dracut
+
+FROM base AS final
+COPY --from=bootc-build /sysroot/ /
+
+#dracut runtime deps
+RUN --mount=type=cache,target=/var/cache/pacman/pkg \
+    --mount=type=cache,target=/var/lib/pacman/sync \
+    pacman -Sy --noconfirm --needed \
+    linux \
+    linux-firmware
 
 # Regression with newer dracut broke this
-RUN mkdir -p /etc/dracut.conf.d && \
-    printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /etc/dracut.conf.d/fix-bootc.conf
+RUN install -d /etc/dracut.conf.d && cat > /etc/dracut.conf.d/fix-bootc.conf <<EOF
+systemdsystemconfdir=/etc/systemd/system
+systemdsystemunitdir=/usr/lib/systemd/system
+EOF
 
-RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
-    pacman -S --noconfirm base-devel rust && \
-    git clone "https://github.com/tgnthump/bootc.git" /tmp/bootc && \
-    make -C /tmp/bootc bin install-all install-initramfs-dracut && \
-    sh -c 'export KERNEL_VERSION="$(basename "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)")" && \
-    dracut --force --no-hostonly --reproducible --zstd --verbose --kver "$KERNEL_VERSION"  "/usr/lib/modules/$KERNEL_VERSION/initramfs.img"' && \
-    pacman -Rns --noconfirm base-devel rust && \
-    pacman -S --clean --noconfirm
+
+# Recreate initramfs with dracut to ensure proper integration
+RUN KERNEL_VERSION="$(ls -1 /usr/lib/modules | sort -V | tail -n 1)" && \
+    dracut --force --no-hostonly --reproducible --zstd --verbose --kver "$KERNEL_VERSION" "/usr/lib/modules/$KERNEL_VERSION/initramfs.img"
+
+RUN --mount=type=cache,target=/var/cache/pacman/pkg \
+    --mount=type=cache,target=/var/lib/pacman/sync \
+    pacman -Sy --noconfirm --needed \
+    btrfs-progs \
+    e2fsprogs \
+    xfsprogs \
+    dosfstools \
+    fuse-overlayfs \
+    skopeo \
+    dbus \
+    dbus-glib \
+    glib2 \
+    shadow \
+    networkmanager \
+    nano \
+    vim \
+    wget \
+    sudo \
+    podman \
+    just \
+    git \
+    && pacman -Scc --noconfirm
 
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
-    rm -rf /boot /home /root /usr/local /srv && \
-    mkdir -p /var /sysroot /boot /usr/lib/ostree && \
+    rm -rf /boot /home /root /usr/local /srv /efi && \
+    mkdir -p /var /sysroot /boot /usr/lib/ostree /efi && \
     ln -s var/opt /opt && \
     ln -s var/roothome /root && \
     ln -s var/home /home && \
