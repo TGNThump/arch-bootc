@@ -25,7 +25,7 @@ RUN mkdir -p /sysroot
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/usr/local/cargo/git \
-    make -C /tmp/bootc bin install-all install-initramfs-dracut
+    make -C /tmp/bootc bin install-all
 
 FROM base AS final
 COPY --from=bootc-build /sysroot/ /
