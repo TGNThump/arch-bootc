@@ -69,6 +69,8 @@ RUN --mount=type=cache,target=/var/cache/pacman/pkg \
     git \
     && pacman -Scc --noconfirm
 
+RUN localectl set-keymap --no-convert uk
+
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     rm -rf /boot /home /root /usr/local /srv /efi && \
