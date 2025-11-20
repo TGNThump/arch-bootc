@@ -49,17 +49,17 @@ RUN KERNEL_VERSION="$(ls -1 /usr/lib/modules | sort -V | tail -n 1)" && \
 RUN --mount=type=cache,target=/var/cache/pacman/pkg \
     --mount=type=cache,target=/var/lib/pacman/sync \
     pacman -Sy --noconfirm --needed \
-    btrfs-progs \
-    e2fsprogs \
-    xfsprogs \
-    dosfstools \
-    fuse-overlayfs \
+    btrfs-progs e2fsprogs xfsprogs dosfstools fuse-overlayfs \
     skopeo \
     dbus \
     dbus-glib \
     glib2 \
     shadow \
     networkmanager \
+    pipewire pipewire-alsa pipewire-pulse pipewire-jack \
+    wireplumber \
+    openssh \
+    man \
     nano \
     vim \
     wget \
@@ -67,6 +67,21 @@ RUN --mount=type=cache,target=/var/cache/pacman/pkg \
     podman \
     just \
     git \
+    hyprland \
+    hyprpaper \
+    hyprpicker \
+    hyprlauncher \
+    hypridle \
+    hyprlock \
+    hyprpolkitagent \
+    dunst \
+    qt5-wayland \
+    qt6-wayland \
+    waybar \
+    nautilus \
+    uwsm \
+    libnewt \
+    xdg-desktop-portal-hyprland \
     && pacman -Scc --noconfirm
 
 RUN localectl set-keymap --no-convert uk
