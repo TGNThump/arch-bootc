@@ -84,7 +84,7 @@ RUN --mount=type=cache,target=/var/cache/pacman/pkg \
     xdg-desktop-portal-hyprland \
     && pacman -Scc --noconfirm
 
-RUN localectl set-keymap --no-convert uk
+RUN echo "KEYMAP=uk" > /etc/vconsole.conf
 
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
