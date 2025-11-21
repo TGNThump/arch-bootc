@@ -103,3 +103,4 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
 RUN usermod -p "$(echo "changeme" | mkpasswd -s)" root
 
 RUN bootc container lint
+RUN date > /build.time
