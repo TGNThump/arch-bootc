@@ -100,7 +100,7 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     printf "[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n" | tee "/usr/lib/ostree/prepare-root.conf"
 
 # Discard trigger files for systemd-firstboot
-RUN rm /etc/passwd /etc/shadow /etc/group /etc/gshadow /etc/locale.conf
+RUN rm /etc/shadow /etc/locale.conf /var/log/pacman.log
 
 RUN bootc container lint
 RUN date > /build.time
