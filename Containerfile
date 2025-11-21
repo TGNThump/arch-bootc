@@ -86,8 +86,6 @@ RUN --mount=type=cache,target=/var/cache/pacman/pkg \
 
 ADD rootfs/ /
 
-RUN echo "KEYMAP=uk" > /etc/vconsole.conf
-
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     rm -rf /boot /home /root /usr/local /srv && \
@@ -100,6 +98,9 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     echo "d /var/roothome 0700 root root -" | tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     echo "d /run/media 0755 root root -" | tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     printf "[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n" | tee "/usr/lib/ostree/prepare-root.conf"
+
+# Discard trigger files for systemd-firstboot
+RUN rm /etc/passwd /etc/shadow /etc/group /etc/gshadow /etc/locale.conf
 
 RUN bootc container lint
 RUN date > /build.time
