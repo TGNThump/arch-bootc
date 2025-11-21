@@ -38,9 +38,7 @@ RUN --mount=type=cache,target=/var/cache/pacman/pkg \
     linux-firmware
 
 # Regression with newer dracut broke this
-RUN mkdir -p /etc/dracut.conf.d && \
-    printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /etc/dracut.conf.d/fix-bootc.conf
-
+ADD rootfs/usr/lib/dracut /usr/lib/dracut
 
 # Recreate initramfs with dracut to ensure proper integration
 RUN KERNEL_VERSION="$(ls -1 /usr/lib/modules | sort -V | tail -n 1)" && \
