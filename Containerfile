@@ -73,6 +73,7 @@ RUN --mount=type=cache,target=/var/cache/pacman/pkg \
     hyprlock \
     hyprpolkitagent \
     dunst \
+    kitty \
     qt5-wayland \
     qt6-wayland \
     waybar \
@@ -81,6 +82,9 @@ RUN --mount=type=cache,target=/var/cache/pacman/pkg \
     libnewt \
     xdg-desktop-portal-hyprland \
     && pacman -Scc --noconfirm
+
+
+ADD rootfs/ /
 
 RUN echo "KEYMAP=uk" > /etc/vconsole.conf
 
@@ -96,9 +100,6 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     echo "d /var/roothome 0700 root root -" | tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     echo "d /run/media 0755 root root -" | tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     printf "[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n" | tee "/usr/lib/ostree/prepare-root.conf"
-
-# Setup a temporary root passwd (changeme) for dev purposes
-RUN usermod -p "$(echo "changeme" | mkpasswd -s)" root
 
 RUN bootc container lint
 RUN date > /build.time
